@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Note Vue-R</title>
+  <script src="https://unpkg.com/vue"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="http://davidtkatz.com/public_css/noteMaster.css"
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js"></script>
+  <style>
+    .note {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id='app'>
+    <h3>{{title}}</h3>
+    <div class="form">
+      <div class="form-group">
+        <div class="form-group">
+          <label>Note Title</label>
+          <input class="form-control" type="text" v-model="note.title">
+        </div>
+        <div class="form-group">
+          <label>Note Text</label>
+          <textarea class="form-control" v-model="note.text"></textarea>
+        </div>
+        <button class="btn btn-primary" @click="addNote">Submit</button>
+      </div>
+    </div>
+    <div class="col-sm-12">
+      <div class="col-sm-12 note" v-for="(note, index) in notes">
+        <div class="card">
+          <div class="class-block">
+            <button class="close" @click="removeNote(index)">&times;</button>
+            <h4 class="card-title">{{note.title}}</h4>
+            <h6 class="card-subtitle mb-2 text-muted">{{note.date}}</h6>
+            <p class="card-text">{{note.text}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let dateOptions = { hour: 'numeric', minute: 'numeric', second: 'numeric' }
+    let app = new Vue({
+      el: '#app',
+      data: {
+        title: 'Note Vue-R',
+        note: {
+          title: '',
+          text: ''
+        },
+        notes: []
+      },
+      created() {
+        this.notes = this.store('note-vue-r');
+        if(this.notes.length <= 0) {
+          this.seedNotes('Discovered the pleasures of vue.js', 'React sucks balls')
+          this.seedNotes('Open source rocks', 'woop woop woop woop woop woop woop woop woop woop')
+          this.seedNotes('Became a developer', 'Damn straight')
+        }
+      },
+      methods: {
+        getDate() {
+          return new Date(Date.now()).toLocaleDateString('en-GB', dateOptions)
+        },
+        addNote() {
+          let { text, title } = this.note;
+          this.notes.push({
+            text,
+            title,
+            date: this.getDate()
+          });
+          this.store('note-vue-r', this.notes);
+        },
+        seedNotes(title, text) {
+          this.notes.push({
+            text,
+            title,
+            date: this.getDate()
+          });
+        },
+        removeNote(index) {
+          this.notes.splice(index, 1);
+          this.store('note-vue-r', this.notes);
+        },
+        store(namespace, data) {
+          if (arguments.length > 1) {
+            return localStorage.setItem(namespace, JSON.stringify(data));
+          } else {
+            var store = localStorage.getItem(namespace);
+            return (store && JSON.parse(store)) || [];
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
